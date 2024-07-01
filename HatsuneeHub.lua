@@ -1,4 +1,4 @@
--- Hatsune Script for Blade Ball
+-- Hatsune Script for Any Game
 -- Dependencies
 local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/shlexware/Orion/main/source"))()
 local runService = game:GetService("RunService")
@@ -6,19 +6,8 @@ local userInputService = game:GetService("UserInputService")
 local players = game:GetService("Players")
 local player = players.LocalPlayer
 
--- Ensure script runs only in the game "Blade Ball"
-if game.PlaceId ~= 13772394625 then
-OrionLib:MakeNotification({
-Name = "Invalid Game",
-Content = "This script only works in Blade Ball.",
-Image = "rbxassetid://4483345998",
-Time = 5
-})
-return
-end
-
 -- Main GUI
-local main = OrionLib:MakeWindow({Name = "Blade Ball Script", HidePremium = false, SaveConfig = true, ConfigFolder = "BladeBallScript"})
+local main = OrionLib:MakeWindow({Name = "Universal Roblox Script", HidePremium = false, SaveConfig = true, ConfigFolder = "UniversalScript"})
 
 -- Auto Parry Variables
 local autoParryEnabled = false
