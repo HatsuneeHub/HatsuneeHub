@@ -7,7 +7,7 @@ local players = game:GetService("Players")
 local player = players.LocalPlayer
 
 -- Ensure script runs only in the game "Blade Ball"
-if game.PlaceId ~= fc9b92463fbd5249baeb7610f91e42dc then -- Ganti dengan PlaceId game Blade Ball
+if game.PlaceId ~= 13772394625 then -- Ganti dengan PlaceId game Blade Ball
     OrionLib:MakeNotification({
         Name = "Invalid Game",
         Content = "This script only works in Blade Ball.",
