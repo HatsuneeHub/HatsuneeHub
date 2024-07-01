@@ -1,96 +1,225 @@
--- Blade Ball Script with Start Menu
+-- Hatsune Script for Blade Ball
 -- Dependencies
 local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/shlexware/Orion/main/source"))()
-local player = game.Players.LocalPlayer
-local replicatedStorage = game:GetService("ReplicatedStorage")
 local runService = game:GetService("RunService")
-local mouse = player:GetMouse()
+local userInputService = game:GetService("UserInputService")
+local players = game:GetService("Players")
+local player = players.LocalPlayer
 
--- Main GUI with Start Menu
+-- Ensure script runs only in the game "Blade Ball"
+if game.PlaceId ~= 12345678 then -- Ganti dengan PlaceId game Blade Ball
+    OrionLib:MakeNotification({
+        Name = "Invalid Game",
+        Content = "This script only works in Blade Ball.",
+        Image = "rbxassetid://4483345998",
+        Time = 5
+    })
+    return
+end
+
+-- Main GUI
 local main = OrionLib:MakeWindow({Name = "Blade Ball Script", HidePremium = false, SaveConfig = true, ConfigFolder = "BladeBallScript"})
 
--- Start Menu Tab
-local startMenuTab = main:MakeTab({ Name = "Start Menu", Icon = "rbxassetid://4483345998", PremiumOnly = false })
+-- Auto Parry Variables
+local autoParryEnabled = false
+local parryDirection = "Costume"
 
-startMenuTab:AddButton({
-Name = "Start Auto Attack Script",
-Callback = function()
-startAutoAttackScript()
-end
+-- Visualizer Variable
+local visualizerEnabled = false
+
+-- Disable VFX Variable
+local disableVFXEnabled = false
+
+-- AI Variable
+local AIEnabled = false
+
+-- Main Tab
+local mainTab = main:MakeTab({ Name = "Main", Icon = "rbxassetid://4483345998", PremiumOnly = false })
+
+mainTab:AddToggle({
+    Name = "Enable Auto Parry",
+    Default = false,
+    Callback = function(value)
+        autoParryEnabled = value
+        if value then
+            OrionLib:MakeNotification({
+                Name = "Auto Parry Enabled",
+                Content = "Auto Parry has been enabled.",
+                Image = "rbxassetid://4483345998",
+                Time = 5,
+                Color = Color3.fromRGB(0, 0, 255)
+            })
+        else
+            OrionLib:MakeNotification({
+                Name = "Auto Parry Disabled",
+                Content = "Auto Parry has been disabled.",
+                Image = "rbxassetid://4483345998",
+                Time = 5,
+                Color = Color3.fromRGB(255, 0, 0)
+            })
+        end
+    end
 })
 
--- Main Auto Attack Script
-function startAutoAttackScript()
--- Fungsi untuk menyerang musuh terdekat
-local function attackNearestEnemy()
-local enemies = {} -- daftar musuh
+mainTab:AddDropdown({
+    Name = "Direction",
+    Default = "Costume",
+    Options = {"Costume", "Random"},
+    Callback = function(value)
+        parryDirection = value
+    end
+})
 
--- Temukan musuh di dalam area permainan (sesuaikan bagian ini dengan struktur game kalian)
-for _, entity in ipairs(workspace:GetChildren()) do
-if entity:FindFirstChild("Humanoid") and entity:FindFirstChildOfClass("Humanoid").Health > 0 then
-table.insert(enemies, entity)
-end
-end
+mainTab:AddToggle({
+    Name = "Enable Visualizer",
+    Default = false,
+    Callback = function(value)
+        visualizerEnabled = value
+        if value then
+            OrionLib:MakeNotification({
+                Name = "Visualizer Enabled",
+                Content = "Visualizer has been enabled.",
+                Image = "rbxassetid://4483345998",
+                Time = 5,
+                Color = Color3.fromRGB(0, 0, 255)
+            })
+        else
+            OrionLib:MakeNotification({
+                Name = "Visualizer Disabled",
+                Content = "Visualizer has been disabled.",
+                Image = "rbxassetid://4483345998",
+                Time = 5,
+                Color = Color3.fromRGB(255, 0, 0)
+            })
+        end
+    end
+})
 
--- Temukan musuh terdekat
-local nearestEnemy = nil
-local shortestDistance = math.huge
+mainTab:AddToggle({
+    Name = "Disable VFX",
+    Default = false,
+    Callback = function(value)
+        disableVFXEnabled = value
+        if value then
+            OrionLib:MakeNotification({
+                Name = "VFX Disabled",
+                Content = "VFX has been disabled.",
+                Image = "rbxassetid://4483345998",
+                Time = 5,
+                Color = Color3.fromRGB(255, 0, 0)
+            })
+        else
+            OrionLib:MakeNotification({
+                Name = "VFX Enabled",
+                Content = "VFX has been enabled.",
+                Image = "rbxassetid://4483345998",
+                Time = 5,
+                Color = Color3.fromRGB(0, 0, 255)
+            })
+        end
+    end
+})
 
-for _, enemy in ipairs(enemies) do
-local distance = (player.Character.PrimaryPart.Position - enemy.PrimaryPart.Position).Magnitude
-if distance < shortestDistance then
-shortestDistance = distance
-nearestEnemy = enemy
-end
-end
+mainTab:AddToggle({
+    Name = "Enable AI",
+    Default = false,
+    Callback = function(value)
+        AIEnabled = value
+        if value then
+            OrionLib:MakeNotification({
+                Name = "AI Enabled",
+                Content = "AI has been enabled.",
+                Image = "rbxassetid://4483345998",
+                Time = 5,
+                Color = Color3.fromRGB(0, 0, 255)
+            })
+        else
+            OrionLib:MakeNotification({
+                Name = "AI Disabled",
+                Content = "AI has been disabled.",
+                Image = "rbxassetid://4483345998",
+                Time = 5,
+                Color = Color3.fromRGB(255, 0, 0)
+            })
+        end
+    end
+})
 
--- Serang musuh terdekat
-if nearestEnemy then
-replicatedStorage:FindFirstChild("Remotes"):FindFirstChild("Combat"):InvokeServer("attack", nearestEnemy)
-end
-end
+-- Settings Tab
+local settingsTab = main:MakeTab({ Name = "Settings", Icon = "rbxassetid://4483345998", PremiumOnly = false })
 
--- Fungsi untuk menghindari serangan musuh
-local function dodgeAttack()
-local closestProjectile = nil
-local closestDistance = math.huge
+settingsTab:AddButton({
+    Name = "Unlock FPS (30 FPS)",
+    Callback = function()
+        setfpscap(30)
+        OrionLib:MakeNotification({
+            Name = "FPS Set",
+            Content = "FPS has been set to 30.",
+            Image = "rbxassetid://4483345998",
+            Time = 5
+        })
+    end
+})
 
--- Temukan proyektil terdekat (sesuaikan bagian ini dengan struktur game kalian)
-for _, projectile in ipairs(workspace:GetChildren()) do
-if projectile:FindFirstChild("Projectile") then
-local distance = (player.Character.PrimaryPart.Position - projectile.Position).Magnitude
-if distance < closestDistance then
-closestDistance = distance
-closestProjectile = projectile
-end
-end
-end
+settingsTab:AddButton({
+    Name = "Unlock FPS (60 FPS)",
+    Callback = function()
+        setfpscap(60)
+        OrionLib:MakeNotification({
+            Name = "FPS Set",
+            Content = "FPS has been set to 60.",
+            Image = "rbxassetid://4483345998",
+            Time = 5
+        })
+    end
+})
 
--- Menghindari proyektil terdekat
-if closestProjectile then
-local dodgeDirection = (player.Character.PrimaryPart.Position - closestProjectile.Position).unit
-player.Character.Humanoid:Move(dodgeDirection * 50)
-end
-end
+settingsTab:AddButton({
+    Name = "Unlock FPS (120 FPS)",
+    Callback = function()
+        setfpscap(120)
+        OrionLib:MakeNotification({
+            Name = "FPS Set",
+            Content = "FPS has been set to 120.",
+            Image = "rbxassetid://4483345998",
+            Time = 5
+        })
+    end
+})
 
--- Bind fungsi untuk serangan otomatis
+settingsTab:AddKeybind({
+    Name = "Toggle UI",
+    Default = Enum.KeyCode.LeftAlt,
+    Hold = false,
+    Callback = function()
+        main:Toggle()
+    end
+})
+
+-- Developer Info
+local infoTab = main:MakeTab({ Name = "Info", Icon = "rbxassetid://4483345998", PremiumOnly = false })
+
+infoTab:AddLabel("Developer: <@1189847445807562772>")
+infoTab:AddLabel("Discord: discord.gg/jgZmEXfcqW")
+
+-- Main Logic
 runService.RenderStepped:Connect(function()
-attackNearestEnemy()
-dodgeAttack()
-end)
+    if autoParryEnabled then
+        -- Logika Auto Parry
+    end
 
--- Fungsi untuk manual Attack dengan klik mouse
-mouse.Button1Down:Connect(function()
-attackNearestEnemy()
-end)
+    if visualizerEnabled then
+        -- Logika Visualizer
+    end
 
-OrionLib:MakeNotification({
-Name = "Script Started",
-Content = "Auto Attack Script has been started!",
-Image = "rbxassetid://4483345998",
-Time = 5
-})
-end
+    if disableVFXEnabled then
+        -- Logika Disable VFX
+    end
+
+    if AIEnabled then
+        -- Logika AI
+    end
+end)
 
 -- Jalankan OrionLib GUI
 OrionLib:Init()
