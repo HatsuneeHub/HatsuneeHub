@@ -1,4 +1,4 @@
--- Hatsune Script for Blade Ball
+-- Hatsune Script for UPD-Blade-Ball
 -- Dependencies
 local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/shlexware/Orion/main/source"))()
 local runService = game:GetService("RunService")
@@ -6,7 +6,7 @@ local userInputService = game:GetService("UserInputService")
 local players = game:GetService("Players")
 local player = players.LocalPlayer
 
--- Ensure script runs only in the game "Blade Ball"
+-- Ensure script runs only in the game "UPD-Blade-Ball"
 if game.PlaceId ~= 13772394625 then -- Ganti dengan PlaceId game Blade Ball
     OrionLib:MakeNotification({
         Name = "Invalid Game",
